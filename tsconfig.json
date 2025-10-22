@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",                // Modern JS output
+    "module": "ESNext",                // Use ES modules (Vite supports this)
+    "moduleResolution": "Node",        // How TS resolves imports
+    "strict": true,                    // Enable all strict type checks
+    "esModuleInterop": true,           // Makes default imports easier
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,              // Faster builds (skips type checking node_modules)
+    "outDir": "dist",                  // Where compiled files go
+    "baseUrl": "./src"                 // So you can import with "@/file" if you want
+  },
+  "include": ["src"],                  // Only compile files in src/
+  "exclude": ["node_modules", "dist"]  // Don’t compile these
+}
