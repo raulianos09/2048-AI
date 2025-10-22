@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>2048 in TypeScript</title>
   <link rel="stylesheet" href="/style.css" />
 </head>
+
 <body>
   <h1>2048</h1>
 
   <div class="controls">
+    <div id="score-board">
+      Score: <span id="score">0</span>
+    </div>
     <label for="board-size">
       Board Size: <span id="board-size-value">4</span>x<span id="board-size-value-2">4</span>
     </label>
@@ -21,4 +26,5 @@
 
   <script type="module" src="/main.ts"></script>
 </body>
+
 </html>

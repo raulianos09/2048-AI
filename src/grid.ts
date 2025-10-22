@@ -11,7 +11,15 @@ export class Grid {
         const empty = this.getEmptyCells();
         if (empty.length === 0) return;
         const [x, y] = empty[Math.floor(Math.random() * empty.length)];
-        this.cells[x][y] = Math.random() < 0.9 ? 2 : 4;
+        const rand = Math.random();
+        if (rand < 0.9) {
+            this.cells[x][y] = 2;
+        } else if (rand < 0.995) {
+            this.cells[x][y] = 4;
+        } else {
+            console.log("Easter Egg! You got an 8 tile!");
+            this.cells[x][y] = 8;
+        }
     }
 
     getEmptyCells(): [number, number][] {
@@ -52,13 +60,15 @@ export class Grid {
         return true; // no moves left
     }
 
-    private compressArray(array: number[]): number[] {
+    private compressArray(array: number[]): { newArray: number[], points: number } {
+        let points = 0;
         let filtered = array.filter(v => v !== 0);
 
         for (let i = 0; i < filtered.length - 1; i++) {
             if (filtered[i] === filtered[i + 1]) {
                 filtered[i] *= 2;
-                filtered[i + 1] = 0; // mark merged tile
+                points += filtered[i];       // add merged value to points
+                filtered[i + 1] = 0;
             }
         }
 
@@ -68,79 +78,88 @@ export class Grid {
             filtered.push(0);
         }
 
-        return filtered;
+        return { newArray: filtered, points };
     }
+
 
     private arraysEqual(a: number[], b: number[]): boolean {
         return a.length === b.length && a.every((val, idx) => val === b[idx]);
     }
 
-    moveRight(): boolean {
+    moveLeft(): { moved: boolean; score: number } {
         let moved = false;
+        let score = 0;
 
         for (let i = 0; i < this.size; i++) {
             const row = this.cells[i];
-            const newRow = this.compressArray(row.reverse()).reverse();
-
-            if (!this.arraysEqual(row, newRow)) {
-                this.cells[i] = newRow;
+            const { newArray, points } = this.compressArray(row);
+            if (!this.arraysEqual(row, newArray)) {
+                this.cells[i] = newArray;
                 moved = true;
+                score += points;
             }
         }
 
-        return moved;
+        return { moved, score };
     }
 
-    moveLeft(): boolean {
+    moveRight(): { moved: boolean; score: number } {
         let moved = false;
+        let score = 0;
 
         for (let i = 0; i < this.size; i++) {
             const row = this.cells[i];
-            const newRow = this.compressArray(row);
+            const { newArray, points } = this.compressArray([...row].reverse());
+            const finalRow = newArray.reverse();
 
-            if (!this.arraysEqual(row, newRow)) {
-                this.cells[i] = newRow;
+            if (!this.arraysEqual(row, finalRow)) {
+                this.cells[i] = finalRow;
                 moved = true;
+                score += points;
             }
         }
 
-        return moved;
+        return { moved, score };
     }
 
-    moveDown(): boolean {
+    moveUp(): { moved: boolean; score: number } {
         let moved = false;
+        let score = 0;
+
         for (let j = 0; j < this.size; j++) {
-            let col = [];
-            for (let i = 0; i < this.size; i++)
-                col.push(this.cells[i][j]);
+            const col: number[] = [];
+            for (let i = 0; i < this.size; i++) col.push(this.cells[i][j]);
 
-            const newCol = this.compressArray(col.reverse()).reverse();
+            const { newArray, points } = this.compressArray(col);
 
-            if (!this.arraysEqual(col, newCol)) {
-                for (let i = 0; i < this.size; i++)
-                    this.cells[i][j] = newCol[i]
+            if (!this.arraysEqual(col, newArray)) {
+                for (let i = 0; i < this.size; i++) this.cells[i][j] = newArray[i];
                 moved = true;
+                score += points;
             }
         }
 
-        return moved;
+        return { moved, score };
     }
-    moveUp(): boolean {
+
+    moveDown(): { moved: boolean; score: number } {
         let moved = false;
+        let score = 0;
+
         for (let j = 0; j < this.size; j++) {
-            let col = [];
-            for (let i = 0; i < this.size; i++)
-                col.push(this.cells[i][j]);
+            const col: number[] = [];
+            for (let i = 0; i < this.size; i++) col.push(this.cells[i][j]);
 
-            const newCol = this.compressArray(col);
+            const { newArray, points } = this.compressArray([...col].reverse());
+            const finalCol = newArray.reverse();
 
-            if (!this.arraysEqual(col, newCol)) {
-                for (let i = 0; i < this.size; i++)
-                    this.cells[i][j] = newCol[i]
+            if (!this.arraysEqual(col, finalCol)) {
+                for (let i = 0; i < this.size; i++) this.cells[i][j] = finalCol[i];
                 moved = true;
+                score += points;
             }
         }
 
-        return moved;
+        return { moved, score };
     }
 }

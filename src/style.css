@@ -161,3 +161,11 @@ h1 {
 .tile:hover {
   transform: scale(1.05);
 }
+
+#score-board {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #776e65;
+  margin-right: 20px;
+  text-shadow: 0 0 3px rgba(0,0,0,0.1);
+}

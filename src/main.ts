@@ -3,27 +3,47 @@ import { render } from "./ui";
 import "swiped-events";
 
 let grid: Grid;
+let score = 0;
+
+function updateScore(points: number) {
+    score += points;
+    const scoreEl = document.getElementById("score");
+    if (scoreEl) scoreEl.textContent = score.toString();
+}
+
+function resetScore() {
+    score = 0;
+    const scoreEl = document.getElementById("score");
+    if (scoreEl) scoreEl.textContent = score.toString();
+}
+const scoreEl = document.getElementById("score")!;
 
 function startGame(size: number) {
+  resetScore(); // reset when starting
   const board = document.getElementById("game-board")!;
-  board.classList.add("resizing"); // for visual feedback
+  board.classList.add("resizing");
+
   grid = new Grid(size);
   grid.addRandomTile();
   grid.addRandomTile();
+
   board.style.setProperty("--board-size", size.toString());
   render(grid);
   resizeBoard();
+
   setTimeout(() => board.classList.remove("resizing"), 400);
 }
 
-function handleMove(action: () => boolean) {
-  const moved = action();
-  if (moved) {
-    grid.addRandomTile();
-    render(grid);
-    if (grid.isGameOver()) setTimeout(() => alert("Game Over!"), 100);
-  }
+function handleMove(action: () => { moved: boolean; score: number }) {
+    const { moved, score: points } = action();
+    if (moved) {
+        grid.addRandomTile();
+        render(grid);
+        if (points > 0) updateScore(points);  // increment score
+        if (grid.isGameOver()) setTimeout(() => alert("Game Over!"), 100);
+    }
 }
+
 
 document.addEventListener("keydown", (e) => {
   switch (e.key) {
