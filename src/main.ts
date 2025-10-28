@@ -172,6 +172,12 @@ sizeSlider.addEventListener("input", () => {
 
 newGameBtn.addEventListener("click", () => {
     const size = parseInt(sizeSlider.value);
+
+    // Clear cache for this size
+    delete boardCache[size];
+    delete scoreCache[size];
+
+    // Start fresh game
     startGame(size);
 });
 
