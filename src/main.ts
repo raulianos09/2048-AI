@@ -3,9 +3,14 @@ import { render } from "./ui";
 import "swiped-events";
 import { initOverlay, showOverlay, hideOverlay } from "./components/overlay/overlay";
 
-
 let grid: Grid;
 let score = 0;
+
+// --------------------
+// Memoization Caches
+// --------------------
+const boardCache: { [size: number]: Grid } = {};
+const scoreCache: { [size: number]: number } = {};
 
 // --------------------
 // Score Management
@@ -16,8 +21,8 @@ function updateScore(points: number) {
     if (scoreEl) scoreEl.textContent = score.toString();
 }
 
-function resetScore() {
-    score = 0;
+function setScore(val: number) {
+    score = val;
     const scoreEl = document.getElementById("score");
     if (scoreEl) scoreEl.textContent = score.toString();
 }
@@ -38,15 +43,21 @@ if (!scoreEl) {
 // Start / Restart Game
 // --------------------
 function startGame(size: number) {
-    resetScore();
     hideOverlay();
+
+    // Restore from cache if exists
+    if (boardCache[size]) {
+        grid = boardCache[size];
+        setScore(scoreCache[size] || 0);
+    } else {
+        grid = new Grid(size);
+        grid.addRandomTile();
+        grid.addRandomTile();
+        setScore(0);
+    }
 
     const board = document.getElementById("game-board")!;
     board.classList.add("resizing");
-
-    grid = new Grid(size);
-    grid.addRandomTile();
-    grid.addRandomTile();
 
     board.style.setProperty("--board-size", size.toString());
     render(grid);
@@ -60,11 +71,21 @@ function startGame(size: number) {
 // --------------------
 function handleMove(action: () => { moved: boolean; score: number }) {
     const { moved, score: points } = action();
+
     if (moved) {
         if (points > 0) updateScore(points);
         grid.addRandomTile();
         render(grid);
-        if (grid.isGameOver()) showOverlay(score);
+    }
+
+    // Save current board and score in cache
+    const size = parseInt((document.getElementById("board-size") as HTMLInputElement).value);
+    boardCache[size] = grid;
+    scoreCache[size] = score;
+
+    // Always check game over
+    if (grid.isGameOver()) {
+        showOverlay(score); // overlay only needs the score
     }
 }
 
@@ -126,6 +147,11 @@ document.addEventListener("mouseup", (e) => {
 // --------------------
 initOverlay(() => {
     const size = parseInt((document.getElementById("board-size") as HTMLInputElement).value);
+    // Clear cache for the current size
+    delete boardCache[size];
+    delete scoreCache[size];
+
+    // Start a fresh game for this size
     startGame(size);
 });
 
